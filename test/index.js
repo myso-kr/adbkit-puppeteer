@@ -16,10 +16,7 @@ const client = adb.createClient();
 (async () => {
   await Promise.mapSeries(client.listDevices(), async function looper(device) {
     const browser = await client.puppeteer(device.id, { port: 9222 });
-    browser.on('disconnected', async () => {
-      await client.backup(device.id, './test.ab', {});
-      looper(device);
-    })
+    browser.on('disconnected', async () => looper(device))
     const pages = await browser.pages();
     const page = pages.length ? pages[0] : (await browser.newPage());
     await page.setUserAgent('Mozilla/5.0 (Linux; Android 7.0; SM-G935K Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.158 Mobile Safari/537.36');
