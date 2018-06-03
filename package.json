@@ -1,0 +1,31 @@
+{
+  "name": "adbkit-puppeteer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx babel src --out-dir lib",
+    "test": "npm run-script build && babel-node test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://myso-kr@github.com/myso-kr/adbkit-puppeteer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/myso-kr/adbkit-puppeteer/issues"
+  },
+  "homepage": "https://github.com/myso-kr/adbkit-puppeteer#readme",
+  "description": "",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
+  },
+  "dependencies": {
+    "adbkit": "^2.11.0",
+    "bluebird": "^3.5.1",
+    "child-process-promise": "^2.2.1",
+    "lodash": "^4.17.10",
+    "puppeteer": "^1.4.0"
+  }
+}
