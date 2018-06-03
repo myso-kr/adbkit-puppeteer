@@ -53,12 +53,14 @@ const client = adb.createClient();
     await page.waitFor('#query');
     const query1 = await page.$('#query');
     if(query1) {
+      await Promise.delay(1000);
       await query1.click({ x: true, y: true });
       await query1.type('강원도 산골짜기2222222222222222222222222222\n');
     }
     await page.waitFor('#nx_query');
     const query2 = await page.$('#nx_query');
     if(query2) {
+      await Promise.delay(1000);
       await query2.click({ x: Number.MAX_SAFE_INTEGER, y: true, clickCount: 3 });
       await query2.type('강원도 산기슭3\n');
     }
