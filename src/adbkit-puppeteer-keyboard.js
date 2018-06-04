@@ -8,7 +8,6 @@ import './adbkit-shell-wait';
 
 Launcher.connect = ((o) => {
   return async function(options) {
-    console.log(options);
     const client = await o.apply(this, [options]);
     _.set(client, '_connection.adb.client', _.get(options, 'adb'));
     _.set(client, '_connection.adb.serial', _.get(options, 'adbSerial'));
@@ -22,7 +21,6 @@ Keyboard.prototype.type = ((o) => {
   return async function(text, ...args) {
     const client = _.get(this, '_client._connection.adb.client');
     const serial = _.get(this, '_client._connection.adb.serial');
-    console.log(client, serial);
     if(!client || !serial || !(await client.isInstalled(serial, KEYBOARD_PACKAGES))) {
       return o.apply(this, [text, ...args]);
     } else {
