@@ -1,1 +1,1 @@
-module.exports = require('./lib/puppeteer');
+module.exports = require('./lib/adbkit-puppeteer');
