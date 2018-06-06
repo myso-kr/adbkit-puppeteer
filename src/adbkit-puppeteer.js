@@ -46,6 +46,9 @@ Client.prototype.puppeteer = async function(serial, options) {
       adb: this, adbSerial: serial,
       browserWSEndpoint: `ws://127.0.0.1:${opts.port}/devtools/browser`
     });
+    chrome.on('disconnected', async () => {
+      await this.shellWait(serial, `am force-stop ${CHROME_PACKAGES}`);
+    })
     return chrome;
   }
 }
