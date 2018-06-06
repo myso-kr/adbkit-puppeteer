@@ -36,12 +36,12 @@ Client.prototype.puppeteer = async function(serial, options) {
       await this.shellWait(serial, `am force-stop ${CHROME_PACKAGES}`);
       await this.shellWait(serial, `pm clear ${CHROME_PACKAGES}`);
     }
-    if(_.isFunction(opts.preload)) opts.preload();
+    if(_.isFunction(opts.preload)) await opts.preload();
     await this.shellWait(serial, `echo "chrome ${chromeCommandLine.join(' ')}" > /data/local/tmp/chrome-command-line`);
     await this.shellWait(serial, `am set-debug-app --persistent ${CHROME_PACKAGES}`);
     await this.shellWait(serial, `am start -n ${CHROME_PACKAGES}/${CHROME_ACTIVITY} -d 'data:,'`);
     await Promise.delay(5000);
-    if(_.isFunction(opts.postload)) opts.postload();
+    if(_.isFunction(opts.postload)) await opts.postload();
     const chrome = Chrome.connect({
       adb: this, adbSerial: serial,
       browserWSEndpoint: `ws://127.0.0.1:${opts.port}/devtools/browser`

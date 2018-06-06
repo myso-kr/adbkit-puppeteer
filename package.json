@@ -1,6 +1,6 @@
 {
   "name": "adbkit-puppeteer",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "index.js",
   "scripts": {
     "build": "npx babel src --out-dir lib",
