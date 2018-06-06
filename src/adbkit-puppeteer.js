@@ -32,8 +32,8 @@ Client.prototype.puppeteer = async function(serial, options) {
     chromeCommandLine.push('--no-default-browser-check');
     chromeCommandLine.push('--no-first-run');
     chromeCommandLine.push.apply(chromeCommandLine, opts.args);
+    await this.shellWait(serial, `am force-stop ${CHROME_PACKAGES}`);
     if(!opts.noReset) {
-      await this.shellWait(serial, `am force-stop ${CHROME_PACKAGES}`);
       await this.shellWait(serial, `pm clear ${CHROME_PACKAGES}`);
     }
     if(_.isFunction(opts.preload) || opts.preload instanceof Promise) await opts.preload();
