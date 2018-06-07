@@ -1,66 +1,135 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
+import { inspect } from 'util';
+import XML from 'fast-xml-parser';
+const XML_OPTIONS = {
+    attributeNamePrefix : "",
+    textNodeName : "#text",
+    ignoreAttributes : false,
+    ignoreNameSpace : false,
+    allowBooleanAttributes : true,
+    parseNodeValue : true,
+    parseAttributeValue : true,
+    trimValues: true
+};
+
+import { Mouse, Touchscreen } from 'puppeteer/lib/Input';
+// Mouse.prototype.move = async function(x, y, options) { throw new Error(''); }
+// Mouse.prototype.down = async function(x, y, options) { throw new Error(''); }
+// Mouse.prototype.up = async function(x, y, options) { throw new Error(''); }
+// Mouse.prototype.click = async function(x, y, options) {
+//   return this._page.touchscreen.tap(x, y, options);
+// }
+
+Touchscreen.prototype.tap = async function(x, y) {
+  const client = _.get(this, '_client._connection.adb.client');
+  const serial = _.get(this, '_client._connection.adb.serial');
+  // const device_viewport = await client.screen(serial);
+  // const screen_viewport = this._page.viewport();
+  // const dx = Math.floor(x * device_viewport.deviceScaleFactor);
+  // const dy = Math.floor(y * device_viewport.deviceScaleFactor);
+  // console.log('tap', dx, dy);
+  await client.shellWait(serial, `input touchscreen tap ${x} ${y}`);
+  await Promise.delay(1000);
+}
+Touchscreen.prototype.swipe = async function(x1, y1, x2, y2, options = { duration: 500 }) {
+  const client = _.get(this, '_client._connection.adb.client');
+  const serial = _.get(this, '_client._connection.adb.serial');
+  // const device_viewport = await client.screen(serial);
+  // const screen_viewport = this._page.viewport();
+
+  // const dx1 = Math.floor(x1 * device_viewport.deviceScaleFactor);
+  // const dy1 = Math.floor(y2 * device_viewport.deviceScaleFactor);
+  // const dx2 = Math.floor(x2 * device_viewport.deviceScaleFactor);
+  // const dy2 = Math.floor(y2 * device_viewport.deviceScaleFactor);
+  await client.shellWait(serial, `input touchscreen swipe ${dx1} ${dy1} ${dx2} ${dy2} ${options.duration}`);
+}
+
+Touchscreen.prototype.swipeDirection = async function(direction, length = 100, options = { duration: 500 }) {
+  const client = _.get(this, '_client._connection.adb.client');
+  const serial = _.get(this, '_client._connection.adb.serial');
+  const device_viewport = await client.screen(serial);
+
+  const cx = device_viewport.width / 2;
+  const cy = device_viewport.height / 2;
+  switch(direction) {
+    case 'u': case 'up':
+      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy + length} ${options.duration}`);
+    break;
+    case 'd': case 'down':
+      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy - length} ${options.duration}`);
+    break;
+    case 'l': case 'left':
+      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy + length} ${options.duration}`);
+    break;
+    case 'r': case 'right':
+      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy - length} ${options.duration}`);
+    break;
+    default:
+      throw new Error('');
+  }
+}
 
 import ElementHandle from 'puppeteer/lib/ElementHandle';
+ElementHandle.prototype.tap_by_filter = async function(x, y, filter, offset = 0) {
 
-ElementHandle.prototype.click = ((o) => {
-  return async function(options = {}) {
-    if(_.has(options, 'x') && _.has(options, 'y')) {
-      await this._scrollIntoViewIfNeeded();
-      const rect = await this.boundingBox();
-      const size = await this.boxModel();
-      let centerX = rect.x + rect.width / 2;
-      let centerY = rect.y + rect.height / 2;
-      const lt = {
-        x: Math.max(size.content[0].x, size.padding[0].x, size.border[0].x, size.margin[0].x),
-        y: Math.max(size.content[0].y, size.padding[0].y, size.border[0].y, size.margin[0].y),
-      }
-      const rb = {
-        x: Math.min(size.content[2].x, size.padding[2].x, size.border[2].x, size.margin[2].x),
-        y: Math.min(size.content[2].y, size.padding[2].y, size.border[2].y, size.margin[2].y),
-      }
-      if(options.x === true) options.x = _.random(lt.x + 1, rb.x - 1);
-      if(options.x === undefined) options.x = centerX;
-      if(options.x <= lt.x) options.x = lt.x + 1;
-      if(options.x >= rb.x) options.x = rb.x - 1;
-      if(options.y === true) options.y = _.random(lt.y + 1, rb.y - 1);
-      if(options.y === undefined) options.y = centerY;
-      if(options.y <= lt.y) options.y = lt.y + 1;
-      if(options.y >= rb.y) options.y = rb.y - 1;
-      await this._page.mouse.click(options.x, options.y, _.omit(options, 'x', 'y'));
-    } else {
-      return o.apply(this, [options]);
-    }
-  }
-})(ElementHandle.prototype.click);
+}
+ElementHandle.prototype.tap_by_path = async function(x, y, filter) {
 
-ElementHandle.prototype.tap = ((o) => {
-  return async function(options = {}) {
-    if(_.has(options, 'x') && _.has(options, 'y')) {
-      await this._scrollIntoViewIfNeeded();
-      const rect = await this.boundingBox();
-      const size = await this.boxModel();
-      let centerX = rect.x + rect.width / 2;
-      let centerY = rect.y + rect.height / 2;
-      const lt = {
-        x: Math.max(size.content[0].x, size.padding[0].x, size.border[0].x, size.margin[0].x),
-        y: Math.max(size.content[0].y, size.padding[0].y, size.border[0].y, size.margin[0].y),
+}
+
+ElementHandle.prototype.tap = async function(x, y, filter, offset = 0) {
+  const client = _.get(this, '_client._connection.adb.client');
+  const serial = _.get(this, '_client._connection.adb.serial');
+  const ui = _.get(this, '_client._connection.ui.client');
+  const ui_dump = await ui.dump(true);
+  if(XML.validate(ui_dump) !== true) { throw new Error('not xml'); }
+  const ui_json = XML.parse(ui_dump, XML_OPTIONS);
+  const ui_json_flat = (collection) => {
+    const flat = _.reduce(collection, (o, v, k) => {
+      if(_.isArray(v)) {
+        o.push.apply(o, ui_json_flat(v));
+      } else if(_.isPlainObject(v)) {
+        o.push(_.omit(v, 'node'));
+        o.push.apply(o, ui_json_flat(v));
       }
-      const rb = {
-        x: Math.min(size.content[2].x, size.padding[2].x, size.border[2].x, size.margin[2].x),
-        y: Math.min(size.content[2].y, size.padding[2].y, size.border[2].y, size.margin[2].y),
+      return o;
+    }, []);
+    const bound = (v) => {
+      const PT_BOUNDS = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g
+      if(v && _.isString(v.bounds)) {
+        const MT_BOUNDS = PT_BOUNDS.exec(v.bounds);
+        v.bounds = {
+          x1: parseInt(_.nth(MT_BOUNDS, 1)),
+          y1: parseInt(_.nth(MT_BOUNDS, 2)),
+          x2: parseInt(_.nth(MT_BOUNDS, 3)),
+          y2: parseInt(_.nth(MT_BOUNDS, 4)),
+        };  
       }
-      if(options.x === true) options.x = _.random(lt.x + 1, rb.x - 1);
-      if(options.x === undefined) options.x = centerX;
-      if(options.x <= lt.x) options.x = lt.x + 1;
-      if(options.x >= rb.x) options.x = rb.x - 1;
-      if(options.y === true) options.y = _.random(lt.y + 1, rb.y - 1);
-      if(options.y === undefined) options.y = centerY;
-      if(options.y <= lt.y) options.y = lt.y + 1;
-      if(options.y >= rb.y) options.y = rb.y - 1;
-      await this._page.touchscreen.tap(options.x, options.y);
-    } else {
-      return o.apply(this, [options]);
-    }
+      return v;
+    };
+    return flat.map(bound);
   }
-})(ElementHandle.prototype.tap);
+  const ui_flat = ui_json_flat(ui_json);
+  if (_.isPlainObject(filter) || _.isFunction(filter)) {
+    const ui_json_find = _.nth(_.filter(ui_flat, filter), offset);
+    if(ui_json_find) {
+      const dx = _.isEmpty(x) ? _.random(ui_json_find.bounds.x1, ui_json_find.bounds.x2) : Math.max(Math.min(x, ui_json_find.bounds.x2), ui_json_find.bounds.x1);
+      const dy = _.isEmpty(y) ? _.random(ui_json_find.bounds.y1, ui_json_find.bounds.y2) : Math.max(Math.min(y, ui_json_find.bounds.y2), ui_json_find.bounds.y1);
+      await client.shellWait(serial, `input touchscreen tap ${dx} ${dy}`);
+      await Promise.delay(1000);
+    }  
+  } else if(_.isString(filter)) {
+    const ui_json_find = _.get(ui_flat, filter);
+    if(ui_json_find) {
+      const dx = _.isEmpty(x) ? _.random(ui_json_find.bounds.x1, ui_json_find.bounds.x2) : Math.max(Math.min(x, ui_json_find.bounds.x2), ui_json_find.bounds.x1);
+      const dy = _.isEmpty(y) ? _.random(ui_json_find.bounds.y1, ui_json_find.bounds.y2) : Math.max(Math.min(y, ui_json_find.bounds.y2), ui_json_find.bounds.y1);
+      await client.shellWait(serial, `input touchscreen tap ${dx} ${dy}`);
+      await Promise.delay(1000);
+    }
+  } else if(!_.isEmpty(x) && !_.isEmpty(y)) {
+    return this._page.touchscreen.tap(x, y);
+  } else {
+    throw new Error('');
+  }
+}

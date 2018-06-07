@@ -1,22 +1,12 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
 
-import Launcher from 'puppeteer/lib/Launcher';
 import { Keyboard } from 'puppeteer/lib/Input';
-
-import './adbkit-shell-wait';
-
-Launcher.connect = ((o) => {
-  return async function(options) {
-    const client = await o.apply(this, [options]);
-    _.set(client, '_connection.adb.client', _.get(options, 'adb'));
-    _.set(client, '_connection.adb.serial', _.get(options, 'adbSerial'));
-    return client;
-  }
-})(Launcher.connect);
-
+// Keyboard.prototype.down   = () => { throw new Error(''); }
+// Keyboard.prototype.up     = () => { throw new Error(''); }
+// Keyboard.prototype.press  = () => { throw new Error(''); }
 Keyboard.prototype.type = ((o) => {
-  const KEYBOARD_PACKAGES = 'com.android.inputmethod.korean'
+  const KEYBOARD_PACKAGES = 'com.aosp.inputmethod.korean'
   const KEYBOARD_ACTIVITY = '.SoftKeyboard';
   return async function(text, ...args) {
     const client = _.get(this, '_client._connection.adb.client');
