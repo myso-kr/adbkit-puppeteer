@@ -1,5 +1,8 @@
 import _ from 'lodash';
+import './lodash-filter-deep';
+
 import Promise from 'bluebird';
+
 import { inspect } from 'util';
 import XML from 'fast-xml-parser';
 const XML_OPTIONS = {
@@ -13,123 +16,147 @@ const XML_OPTIONS = {
     trimValues: true
 };
 
-import { Mouse, Touchscreen } from 'puppeteer/lib/Input';
-// Mouse.prototype.move = async function(x, y, options) { throw new Error(''); }
-// Mouse.prototype.down = async function(x, y, options) { throw new Error(''); }
-// Mouse.prototype.up = async function(x, y, options) { throw new Error(''); }
-// Mouse.prototype.click = async function(x, y, options) {
-//   return this._page.touchscreen.tap(x, y, options);
-// }
-
+import { Touchscreen } from 'puppeteer/lib/Input';
 Touchscreen.prototype.tap = async function(x, y) {
   const client = _.get(this, '_client._connection.adb.client');
   const serial = _.get(this, '_client._connection.adb.serial');
-  // const device_viewport = await client.screen(serial);
-  // const screen_viewport = this._page.viewport();
-  // const dx = Math.floor(x * device_viewport.deviceScaleFactor);
-  // const dy = Math.floor(y * device_viewport.deviceScaleFactor);
-  // console.log('tap', dx, dy);
-  await client.shellWait(serial, `input touchscreen tap ${x} ${y}`);
-  await Promise.delay(1000);
+  const ui = _.get(this, '_client._connection.ui.client');
+
+  const device_viewport = await client.screen(serial);
+  const screen_viewport = this._page.viewport();
+
+  const ui_dump = await ui.dump(true);
+  const ui_view = _.findDeep(XML.parse(ui_dump, XML_OPTIONS), { class: "android.webkit.WebView" });
+  if(ui_view) {
+    const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
+    const ui_rect = _.zipObject(['x1', 'y1', 'x2', 'y2'], [parseInt(ui_bnds[1]), parseInt(ui_bnds[2]), parseInt(ui_bnds[3]), parseInt(ui_bnds[4])]);
+
+    let dx = Math.floor(x * device_viewport.deviceScaleFactor);
+    let dy = Math.floor(y * device_viewport.deviceScaleFactor);
+
+    dx = dx + ui_rect.x1;
+    dy = dy + ui_rect.y1;
+
+    dx = Math.min(Math.max(dx, ui_rect.x1), ui_rect.x2);
+    dy = Math.min(Math.max(dy, ui_rect.y1), ui_rect.y2);
+
+    await client.shellWait(serial, `input touchscreen tap ${dx} ${dy}`);
+    await Promise.delay(1000);
+  } else {
+    await Promise.delay(1000);
+    await this.tap(x, y);
+  }
 }
 Touchscreen.prototype.swipe = async function(x1, y1, x2, y2, options = { duration: 500 }) {
   const client = _.get(this, '_client._connection.adb.client');
   const serial = _.get(this, '_client._connection.adb.serial');
-  // const device_viewport = await client.screen(serial);
-  // const screen_viewport = this._page.viewport();
+  const ui = _.get(this, '_client._connection.ui.client');
 
-  // const dx1 = Math.floor(x1 * device_viewport.deviceScaleFactor);
-  // const dy1 = Math.floor(y2 * device_viewport.deviceScaleFactor);
-  // const dx2 = Math.floor(x2 * device_viewport.deviceScaleFactor);
-  // const dy2 = Math.floor(y2 * device_viewport.deviceScaleFactor);
-  await client.shellWait(serial, `input touchscreen swipe ${dx1} ${dy1} ${dx2} ${dy2} ${options.duration}`);
+  const device_viewport = await client.screen(serial);
+  const screen_viewport = this._page.viewport();
+
+  const ui_dump = await ui.dump(true);
+  const ui_view = _.findDeep(XML.parse(ui_dump, XML_OPTIONS), { class: "android.webkit.WebView" });
+  if(ui_view) {
+    const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
+    const ui_rect = _.zipObject(['x1', 'y1', 'x2', 'y2'], [parseInt(ui_bnds[1]), parseInt(ui_bnds[2]), parseInt(ui_bnds[3]), parseInt(ui_bnds[4])]);
+
+    let dx1 = Math.floor(x1 * device_viewport.deviceScaleFactor);
+    let dy1 = Math.floor(y1 * device_viewport.deviceScaleFactor);
+    let dx2 = Math.floor(x2 * device_viewport.deviceScaleFactor);
+    let dy2 = Math.floor(y2 * device_viewport.deviceScaleFactor);
+
+    dx1 = dx1 + ui_rect.x1;
+    dy1 = dy1 + ui_rect.y1;
+    dx2 = dx2 + ui_rect.x1;
+    dy2 = dy2 + ui_rect.y1;
+
+    dx1 = Math.min(Math.max(dx1, ui_rect.x1), ui_rect.x2);
+    dy1 = Math.min(Math.max(dy1, ui_rect.y1), ui_rect.y2);
+    dx2 = Math.min(Math.max(dx2, ui_rect.x1), ui_rect.x2);
+    dy2 = Math.min(Math.max(dy2, ui_rect.y1), ui_rect.y2);
+
+    await client.shellWait(serial, `input touchscreen swipe ${dx1} ${dy1} ${dx2} ${dy2} ${options.duration}`);
+    await Promise.delay(1000);
+  } else {
+    await Promise.delay(1000);
+    await this.swipe(x1, y1, x2, y2, options);
+  }
 }
-
-Touchscreen.prototype.swipeDirection = async function(direction, length = 100, options = { duration: 500 }) {
+Touchscreen.prototype.swipeDirection = async function(direction, length = 100, options = { duration: 300 }) {
   const client = _.get(this, '_client._connection.adb.client');
   const serial = _.get(this, '_client._connection.adb.serial');
-  const device_viewport = await client.screen(serial);
+  const screen_viewport = this._page.viewport();
 
-  const cx = device_viewport.width / 2;
-  const cy = device_viewport.height / 2;
+  const cx = screen_viewport.width / 2;
+  const cy = screen_viewport.height / 2;
   switch(direction) {
     case 'u': case 'up':
-      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy + length} ${options.duration}`);
+      await this.swipe(cx, cy, cx, cy + length, options);
     break;
     case 'd': case 'down':
-      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy - length} ${options.duration}`);
+      await this.swipe(cx, cy, cx, cy - length, options);
     break;
     case 'l': case 'left':
-      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy + length} ${options.duration}`);
+      await this.swipe(cx, cy, cx + length, cy, options);
     break;
     case 'r': case 'right':
-      await client.shellWait(serial, `input touchscreen swipe ${cx} ${cy} ${cx} ${cy - length} ${options.duration}`);
+      await this.swipe(cx, cy, cx - length, cy, options);
     break;
-    default:
-      throw new Error('');
   }
 }
 
 import ElementHandle from 'puppeteer/lib/ElementHandle';
-ElementHandle.prototype.tap_by_filter = async function(x, y, filter, offset = 0) {
+ElementHandle.prototype.tap = async function(x, y) {
+  return Promise.resolve()
+  .then(async () => {
+    const client = _.get(this, '_client._connection.adb.client');
+    const serial = _.get(this, '_client._connection.adb.serial');
+    const ui = _.get(this, '_client._connection.ui.client');
 
-}
-ElementHandle.prototype.tap_by_path = async function(x, y, filter) {
-
-}
-
-ElementHandle.prototype.tap = async function(x, y, filter, offset = 0) {
-  const client = _.get(this, '_client._connection.adb.client');
-  const serial = _.get(this, '_client._connection.adb.serial');
-  const ui = _.get(this, '_client._connection.ui.client');
-  const ui_dump = await ui.dump(true);
-  if(XML.validate(ui_dump) !== true) { throw new Error('not xml'); }
-  const ui_json = XML.parse(ui_dump, XML_OPTIONS);
-  const ui_json_flat = (collection) => {
-    const flat = _.reduce(collection, (o, v, k) => {
-      if(_.isArray(v)) {
-        o.push.apply(o, ui_json_flat(v));
-      } else if(_.isPlainObject(v)) {
-        o.push(_.omit(v, 'node'));
-        o.push.apply(o, ui_json_flat(v));
+    const screen_viewport = this._page.viewport();
+    const el_hide = await this.executionContext().evaluate((el) => {
+      if (!el.isConnected) return 'Node is detached from document';
+      if (el.nodeType !== Node.ELEMENT_NODE) return 'Node is not of type HTMLElement';
+      const bounding = el.getBoundingClientRect();
+      const boundingT = bounding.top >= 0;
+      const boundingL = bounding.left >= 0;
+      const boundingB = bounding.top <= (window.innerHeight || document.documentElement.clientHeight);
+      const boundingR = bounding.left <= (window.innerWidth || document.documentElement.clientWidth);
+      if (!boundingT) return 'boundingT';
+      if (!boundingL) return 'boundingL';
+      if (!boundingB) return 'boundingB';
+      if (!boundingR) return 'boundingR';
+      return false;
+    }, this);
+    if(el_hide) {
+      switch(el_hide) {
+        case 'boundingT':
+          await this._page.touchscreen.swipeDirection('u', screen_viewport.height / 2);
+          return this.tap(x, y);
+        break;
+        case 'boundingL':
+          await this._page.touchscreen.swipeDirection('r', screen_viewport.width / 2);
+          return this.tap(x, y);
+        break;
+        case 'boundingB':
+          await this._page.touchscreen.swipeDirection('d', screen_viewport.height / 2);
+          return this.tap(x, y);
+        break;
+        case 'boundingR':
+          await this._page.touchscreen.swipeDirection('l', screen_viewport.width / 2);
+          return this.tap(x, y);
+        break;
+        default:
+          throw new Error(el_hide);
       }
-      return o;
-    }, []);
-    const bound = (v) => {
-      const PT_BOUNDS = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g
-      if(v && _.isString(v.bounds)) {
-        const MT_BOUNDS = PT_BOUNDS.exec(v.bounds);
-        v.bounds = {
-          x1: parseInt(_.nth(MT_BOUNDS, 1)),
-          y1: parseInt(_.nth(MT_BOUNDS, 2)),
-          x2: parseInt(_.nth(MT_BOUNDS, 3)),
-          y2: parseInt(_.nth(MT_BOUNDS, 4)),
-        };  
-      }
-      return v;
-    };
-    return flat.map(bound);
-  }
-  const ui_flat = ui_json_flat(ui_json);
-  if (_.isPlainObject(filter) || _.isFunction(filter)) {
-    const ui_json_find = _.nth(_.filter(ui_flat, filter), offset);
-    if(ui_json_find) {
-      const dx = _.isEmpty(x) ? _.random(ui_json_find.bounds.x1, ui_json_find.bounds.x2) : Math.max(Math.min(x, ui_json_find.bounds.x2), ui_json_find.bounds.x1);
-      const dy = _.isEmpty(y) ? _.random(ui_json_find.bounds.y1, ui_json_find.bounds.y2) : Math.max(Math.min(y, ui_json_find.bounds.y2), ui_json_find.bounds.y1);
-      await client.shellWait(serial, `input touchscreen tap ${dx} ${dy}`);
-      await Promise.delay(1000);
-    }  
-  } else if(_.isString(filter)) {
-    const ui_json_find = _.get(ui_flat, filter);
-    if(ui_json_find) {
-      const dx = _.isEmpty(x) ? _.random(ui_json_find.bounds.x1, ui_json_find.bounds.x2) : Math.max(Math.min(x, ui_json_find.bounds.x2), ui_json_find.bounds.x1);
-      const dy = _.isEmpty(y) ? _.random(ui_json_find.bounds.y1, ui_json_find.bounds.y2) : Math.max(Math.min(y, ui_json_find.bounds.y2), ui_json_find.bounds.y1);
-      await client.shellWait(serial, `input touchscreen tap ${dx} ${dy}`);
-      await Promise.delay(1000);
     }
-  } else if(!_.isEmpty(x) && !_.isEmpty(y)) {
-    return this._page.touchscreen.tap(x, y);
-  } else {
-    throw new Error('');
-  }
+
+    const el_rect = await this.boxModel();
+    x = (_.isEmpty(x)) ? _.random(el_rect.padding[0].x, el_rect.padding[2].x) : x + el_rect.padding[0].x;
+    y = (_.isEmpty(y)) ? _.random(el_rect.padding[0].y, el_rect.padding[2].y) : y + el_rect.padding[0].y;
+    x = Math.min(Math.max(x, el_rect.padding[0].x), el_rect.padding[0].x);
+    y = Math.min(Math.max(y, el_rect.padding[0].y), el_rect.padding[2].y);
+    await this._page.touchscreen.tap(x, y);
+  }).timeout(60000)
 }
