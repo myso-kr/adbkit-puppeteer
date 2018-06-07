@@ -83,7 +83,7 @@ Touchscreen.prototype.swipe = async function(x1, y1, x2, y2, options = { duratio
     await this.swipe(x1, y1, x2, y2, options);
   }
 }
-Touchscreen.prototype.swipeDirection = async function(direction, length = 100, options = { duration: 300 }) {
+Touchscreen.prototype.swipeDirection = async function(direction, length = 100, options = { duration: 500 }) {
   const client = _.get(this, '_client._connection.adb.client');
   const serial = _.get(this, '_client._connection.adb.serial');
   const screen_viewport = this._page.viewport();
