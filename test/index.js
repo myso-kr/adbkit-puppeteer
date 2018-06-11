@@ -11,7 +11,7 @@ import UIAutomator from 'uiautomator-server';
 const CHROME_PACKAGES = 'com.android.chrome'
 const CHROME_ACTIVITY = 'com.google.android.apps.chrome.Main';
 const CHROME_PROTOCOL = 'localabstract:chrome_devtools_remote';
-const REMOTE_KEYBOARD = 'com.android.inputmethod.korean/.SoftKeyboard';
+const REMOTE_KEYBOARD = 'com.aosp.inputmethod.korean/.SoftKeyboard';
 
 const client = adb.createClient();
 

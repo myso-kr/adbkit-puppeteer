@@ -4,9 +4,6 @@ import Promise from 'bluebird';
 import Path from 'path';
 
 import { Keyboard } from 'puppeteer/lib/Input';
-// Keyboard.prototype.down   = () => { throw new Error(''); }
-// Keyboard.prototype.up     = () => { throw new Error(''); }
-// Keyboard.prototype.press  = () => { throw new Error(''); }
 Keyboard.prototype.type = ((o) => {
   const KEYBOARD_PACKAGES = 'com.aosp.inputmethod.korean'
   const KEYBOARD_ACTIVITY = '.SoftKeyboard';
