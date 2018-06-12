@@ -17,7 +17,7 @@ Page.prototype.setViewport = ((o) => {
         if(setting.key == 'window.innerWidth') {
           _.set(opts, 'width' , setting.value);
         }
-        if(setting.key == 'window.innerHeight') {
+        if(setting.key == 'window.outerHeight') {
           _.set(opts, 'height', setting.value);
         }
         if(setting.key == 'window.devicePixelRatio') {
