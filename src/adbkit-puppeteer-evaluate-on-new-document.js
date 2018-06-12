@@ -9,7 +9,7 @@ import Page from 'puppeteer/lib/Page';
     pageFunctions.push(pageFunction);
   }
   Page.prototype.goto = async function(url, options) {
-    await o.call(this, pageFunctions.join(';\n'));
-    await g.call(this, url, options);
+    await o.apply(this, [pageFunctions.join(';\n')]);
+    await g.apply(this, [url, options]);
   }
 })(Page.prototype.evaluateOnNewDocument, Page.prototype.goto);
