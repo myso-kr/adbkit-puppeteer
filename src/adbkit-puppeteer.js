@@ -8,10 +8,12 @@ import Chrome from 'puppeteer';
 import ADB from 'adbkit';
 import './adbkit-shell-wait';
 import './adbkit-screen';
+import './adbkit-puppeteer-evaluate-on-new-document';
 import './adbkit-puppeteer-bridge';
 import './adbkit-puppeteer-keyboard';
 import './adbkit-puppeteer-mouse';
 import './adbkit-puppeteer-element';
+import './adbkit-puppeteer-viewport';
 
 import Client from 'adbkit/lib/adb/client';
 Client.prototype.puppeteer = async function(serial, options) {
@@ -60,6 +62,7 @@ Client.prototype.puppeteer = async function(serial, options) {
     chromeCommandLine.push('--disable-fre');
     chromeCommandLine.push('--no-default-browser-check');
     chromeCommandLine.push('--no-first-run');
+    chromeCommandLine.push('--ignore-certificate-errors');
     chromeCommandLine.push.apply(chromeCommandLine, opts.args);
     await this.shellWait(serial, `am force-stop ${CHROME_PACKAGES}`);
     if(!opts.noReset) {
