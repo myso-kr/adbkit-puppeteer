@@ -18,7 +18,7 @@ Launcher.connect = ((o) => {
   }
 })(Launcher.connect);
 
-import Browser from 'puppeteer/lib/Browser';
+import { Browser } from 'puppeteer/lib/Browser';
 Browser.prototype.newPage = ((o) => {
   return async function(...args) {
     const page = await o.apply(this, args);
