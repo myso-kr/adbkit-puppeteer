@@ -25,7 +25,9 @@ Touchscreen.prototype.tap = async function(x, y) {
   const device_viewport = await client.screen(serial);
   const screen_viewport = this._page.viewport();
 
-  const ui_dump = await ui.dump(false);
+  // const ui_dump = await ui.dump(false);
+  await client.shellWait(serial, 'uiautomator dump').delay(3000);
+  const ui_dump = await client.shellWait(serial, 'cat /sdcard/window_dump.xml');
   const ui_view = _.findDeep(XML.parse(ui_dump, XML_OPTIONS), { class: "android.webkit.WebView" });
   if(ui_view) {
     const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
@@ -55,7 +57,9 @@ Touchscreen.prototype.swipe = async function(x1, y1, x2, y2, options = { duratio
   const device_viewport = await client.screen(serial);
   const screen_viewport = this._page.viewport();
 
-  const ui_dump = await ui.dump(false);
+  // const ui_dump = await ui.dump(false);
+  await client.shellWait(serial, 'uiautomator dump').delay(3000);
+  const ui_dump = await client.shellWait(serial, 'cat /sdcard/window_dump.xml');
   const ui_view = _.findDeep(XML.parse(ui_dump, XML_OPTIONS), { class: "android.webkit.WebView" });
   if(ui_view) {
     const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
@@ -112,8 +116,7 @@ ElementHandle.prototype.tap = async function(x, y) {
   .then(async () => {
     const client = _.get(this, '_client._connection.adb.client');
     const serial = _.get(this, '_client._connection.adb.serial');
-    const ui = _.get(this, '_client._connection.ui.client');
-
+    
     const screen_viewport = this._page.viewport();
     const el_hide = await this.executionContext().evaluate((el) => {
       if (!el.isConnected) return 'Node is detached from document';
