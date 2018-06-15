@@ -121,8 +121,8 @@ ElementHandle.prototype.tap = async function(x, y) {
       const bounding = el.getBoundingClientRect();
       const boundingT = bounding.top >= 0;
       const boundingL = bounding.left >= 0;
-      const boundingB = bounding.top <= Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-      const boundingR = bounding.left <= Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+      const boundingB = bounding.bottom <= Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+      const boundingR = bounding.right <= Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
       if (!boundingT) return 'boundingT';
       if (!boundingL) return 'boundingL';
       if (!boundingB) return 'boundingB';
