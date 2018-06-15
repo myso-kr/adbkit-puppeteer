@@ -36,6 +36,7 @@ Page.prototype.setViewport = ((o) => {
       await this.evaluateOnNewDocument(defines.join('\n'));
     }
     _.unset(opts, 'modelName');
+    console.log(opts);
     return o.apply(this, [opts]);
   }
 })(Page.prototype.setViewport);
