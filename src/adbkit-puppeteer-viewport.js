@@ -33,6 +33,7 @@ Page.prototype.setViewport = ((o) => {
         const attrValue = _.isString(setting.value) ? `"${setting.value}"` : setting.value;
         return `Object.defineProperty(${attrName}, "${attrType}", { get: function() { return ${attrValue}; }, set: function(v) {} });`
       })
+      console.log(defines.join('\n'));
       await this.evaluateOnNewDocument(defines.join('\n'));
     }
     _.unset(opts, 'modelName');
