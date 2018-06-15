@@ -61,10 +61,10 @@ Touchscreen.prototype.swipe = async function(x1, y1, x2, y2, options = { duratio
     const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
     const ui_rect = _.zipObject(['x1', 'y1', 'x2', 'y2'], [parseInt(ui_bnds[1]), parseInt(ui_bnds[2]), parseInt(ui_bnds[3]), parseInt(ui_bnds[4])]);
 
-    let dx1 = Math.floor(x1 * screen_viewport.deviceScaleFactor);
-    let dy1 = Math.floor(y1 * screen_viewport.deviceScaleFactor);
-    let dx2 = Math.floor(x2 * screen_viewport.deviceScaleFactor);
-    let dy2 = Math.floor(y2 * screen_viewport.deviceScaleFactor);
+    let dx1 = Math.floor(x1 * screen_viewport.deviceScaleFactor * device_viewport.deviceScaleFactor);
+    let dy1 = Math.floor(y1 * screen_viewport.deviceScaleFactor * device_viewport.deviceScaleFactor);
+    let dx2 = Math.floor(x2 * screen_viewport.deviceScaleFactor * device_viewport.deviceScaleFactor);
+    let dy2 = Math.floor(y2 * screen_viewport.deviceScaleFactor * device_viewport.deviceScaleFactor);
 
     dx1 = dx1 + ui_rect.x1;
     dy1 = dy1 + ui_rect.y1;
