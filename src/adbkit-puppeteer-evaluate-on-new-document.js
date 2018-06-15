@@ -3,13 +3,14 @@ import Promise from 'bluebird';
 
 import Page from 'puppeteer/lib/Page';
 ((o, g) => {
-  const pageFunctions = ["for(var f in console) console[f] = () => {};"];
   Page.prototype.evaluateOnNewDocument = async function(pageFunction, ...args) {
+    this.pageFunctions = this.pageFunctions || ["for(var f in console) console[f] = () => {};"];
     if(args.length) throw new Error('cannot use arguments');
-    pageFunctions.push(pageFunction);
+    this.pageFunctions.push(pageFunction);
   }
   Page.prototype.goto = async function(url, options) {
-    await o.apply(this, [pageFunctions.join(';\n')]);
+    this.pageFunctions = this.pageFunctions || ["for(var f in console) console[f] = () => {};"];
+    await o.apply(this, [this.pageFunctions.join(';\n')]);
     await g.apply(this, [url, options]);
   }
 })(Page.prototype.evaluateOnNewDocument, Page.prototype.goto);

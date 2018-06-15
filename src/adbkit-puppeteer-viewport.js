@@ -23,7 +23,7 @@ Page.prototype.setViewport = ((o) => {
         if(setting.key == 'window.devicePixelRatio') {
           _.set(opts, 'deviceScaleFactor' , setting.value);
         }
-        if(setting.key == 'window.navigator.platform' && setting.value.indexOf('arm') != -1) {
+        if(setting.key == 'window.navigator.platform' && setting.value.indexOf('arm') >= 0) {
           _.set(opts, 'isMobile', true);
           _.set(opts, 'hasTouch', true);
         }
@@ -36,7 +36,6 @@ Page.prototype.setViewport = ((o) => {
       await this.evaluateOnNewDocument(defines.join('\n'));
     }
     _.unset(opts, 'modelName');
-    console.log(opts);
     return o.apply(this, [opts]);
   }
 })(Page.prototype.setViewport);
