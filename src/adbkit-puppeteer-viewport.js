@@ -23,7 +23,7 @@ Page.prototype.setViewport = ((o) => {
         if(setting.key == 'window.devicePixelRatio') {
           _.set(opts, 'deviceScaleFactor' , setting.value);
         }
-        if(setting.key == 'window.navigator.platform' && setting.value.indexOf(setting.key, 'arm') != -1) {
+        if(setting.key == 'window.navigator.platform' && setting.value.indexOf('arm') != -1) {
           _.set(opts, 'isMobile', true);
           _.set(opts, 'hasTouch', true);
         }
@@ -33,7 +33,6 @@ Page.prototype.setViewport = ((o) => {
         const attrValue = _.isString(setting.value) ? `"${setting.value}"` : setting.value;
         return `Object.defineProperty(${attrName}, "${attrType}", { get: function() { return ${attrValue}; }, set: function(v) {} });`
       })
-      console.log(opts, defines.join('\n'));
       await this.evaluateOnNewDocument(defines.join('\n'));
     }
     _.unset(opts, 'modelName');
