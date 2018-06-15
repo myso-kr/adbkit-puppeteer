@@ -25,7 +25,7 @@ Touchscreen.prototype.tap = async function(x, y) {
   const device_viewport = await client.screen(serial);
   const screen_viewport = this._page.viewport();
 
-  const ui_dump = await ui.dump(true);
+  const ui_dump = await ui.dump(false);
   const ui_view = _.findDeep(XML.parse(ui_dump, XML_OPTIONS), { class: "android.webkit.WebView" });
   if(ui_view) {
     const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
@@ -55,7 +55,7 @@ Touchscreen.prototype.swipe = async function(x1, y1, x2, y2, options = { duratio
   const device_viewport = await client.screen(serial);
   const screen_viewport = this._page.viewport();
 
-  const ui_dump = await ui.dump(true);
+  const ui_dump = await ui.dump(false);
   const ui_view = _.findDeep(XML.parse(ui_dump, XML_OPTIONS), { class: "android.webkit.WebView" });
   if(ui_view) {
     const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
