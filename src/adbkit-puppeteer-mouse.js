@@ -33,8 +33,8 @@ Touchscreen.prototype.tap = async function(x, y) {
     const ui_bnds = /\[([\d]+),([\d]+)\]\[([\d]+),([\d]+)\]/g.exec(ui_view.bounds);
     const ui_rect = _.zipObject(['x1', 'y1', 'x2', 'y2'], [parseInt(ui_bnds[1]), parseInt(ui_bnds[2]), parseInt(ui_bnds[3]), parseInt(ui_bnds[4])]);
 
-    let dx = Math.floor(x * Math.max(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
-    let dy = Math.floor(y * Math.max(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
+    let dx = Math.floor(x * Math.min(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
+    let dy = Math.floor(y * Math.min(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
 
     dx = dx + ui_rect.x1;
     dy = dy + ui_rect.y1;
@@ -68,10 +68,10 @@ Touchscreen.prototype.swipe = async function(x1, y1, x2, y2, options = { duratio
     console.log('pos', {x1, y1, x2, y2});
     console.log('rect', ui_rect);
 
-    let dx1 = Math.floor(x1 * Math.max(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
-    let dy1 = Math.floor(y1 * Math.max(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
-    let dx2 = Math.floor(x2 * Math.max(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
-    let dy2 = Math.floor(y2 * Math.max(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
+    let dx1 = Math.floor(x1 * Math.min(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
+    let dy1 = Math.floor(y1 * Math.min(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
+    let dx2 = Math.floor(x2 * Math.min(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
+    let dy2 = Math.floor(y2 * Math.min(screen_viewport.deviceScaleFactor, device_viewport.deviceScaleFactor));
 
     console.log('pos', {dx1, dy1, dx2, dy2});
 
