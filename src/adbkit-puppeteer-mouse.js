@@ -158,5 +158,5 @@ ElementHandle.prototype.tap = async function(x, y) {
     x = Math.min(Math.max(x, el_rect.padding[0].x), el_rect.padding[0].x);
     y = Math.min(Math.max(y, el_rect.padding[0].y), el_rect.padding[2].y);
     await this._page.touchscreen.tap(x, y);
-  }).timeout(60000)
+  }).timeout(300000)
 }
