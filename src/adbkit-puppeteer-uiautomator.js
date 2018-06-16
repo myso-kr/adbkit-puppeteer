@@ -37,8 +37,8 @@ class UIAutomatorServer {
     const client = this.client;
     const serial = this.serial;
     try {
-      const resp = await Request({ method: 'GET', uri: this.url_stop, json: true });
-      console.log(resp);
+      const resp = await Request.get(this.url_stop, {});
+      console.log(this.url_stop, resp);
       await this.uninstallAPK(keepApps);
     } catch(e) {
       throw new Error(`uiautomator-server: Failed to stop uiautomator json-prc server on device ${e.message || e}`);
@@ -49,8 +49,8 @@ class UIAutomatorServer {
     this.__counter = this.__counter + 1;
     const props = { jsonrpc: '2.0', method, params, id: this._counter };
     await Promise.delay(this.options.commadsExecutionDelay);
-    const resp = await Request({ method: 'POST', uri: this.url_json, body: props, json: true });
-    console.log(resp);
+    const resp = await Request.post(this.url_json, { json: props });
+    console.log(this.url_json, resp);
     return resp;
   }
 
