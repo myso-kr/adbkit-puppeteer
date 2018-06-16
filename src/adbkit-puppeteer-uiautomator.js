@@ -4,8 +4,8 @@ import Promise from 'bluebird';
 import URL from 'url';
 import Path from 'path';
 
-import ADB from 'adbkit';
 import Request from 'request-promise';
+import ChildProcess from 'child-process';
 
 
 class UIAutomatorServer {
@@ -104,12 +104,12 @@ class UIAutomatorServer {
 
   async startServer() {
     const serial = this.serial;
-    this.handler = await ADB.createClient();
-    this.handler.shell(serial, `am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`);
+    this.handler = ChildProcess.spawn(`adb -s ${serial} shell am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`)
   }
   async killServer() {
     if(!this.handler) return;
-    return this.handler.kill();
+    this.handler.stdin.pause();
+    this.handler.kill();
   }
 }
 
