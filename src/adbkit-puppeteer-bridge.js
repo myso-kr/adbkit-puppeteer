@@ -10,10 +10,10 @@ Launcher.connect = ((o) => {
     _.set(client, '_connection.adb.serial', _.get(options, 'adb.serial'));
 
     const ui = new UIAutomator(_.get(options, 'ui'));
-    await ui.connect(true);
+    await ui.connect(false);
     _.set(client, '_connection.ui.client', ui);
     _.set(client, '_connection.ui.serial', _.get(options, 'ui.serial'));
-    client.on('disconnected', () => ui.stop(true));
+    client.on('disconnected', () => ui.stop(false));
     return client;
   }
 })(Launcher.connect);
