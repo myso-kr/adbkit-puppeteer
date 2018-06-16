@@ -1,20 +1,23 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
 
-import UIAutomator from 'uiautomator-server';
 import Launcher from 'puppeteer/lib/Launcher';
 Launcher.connect = ((o) => {
   return async function(options) {
-    const client = await o.apply(this, [options]);
-    _.set(client, '_connection.adb.client', _.get(options, 'adb.client'));
-    _.set(client, '_connection.adb.serial', _.get(options, 'adb.serial'));
+    const launcher = await o.apply(this, [options]);
 
-    const ui = await client.uiautomator(_.get(options, 'adb.serial'), _.get(options, 'ui'));
+    const client = _.get(options, 'adb.client');
+    const serial = _.get(options, 'adb.serial');
+    _.set(launcher, '_connection.adb.client', client);
+    _.set(launcher, '_connection.adb.serial', serial);
+
+    const ui = await client.uiautomator(serial, _.get(options, 'ui'));
     await ui.start(true);
-    _.set(client, '_connection.ui.client', ui);
-    _.set(client, '_connection.ui.serial', _.get(options, 'ui.serial'));
-    client.on('disconnected', () => ui.stop());
-    return client;
+    _.set(launcher, '_connection.ui.client', ui);
+    _.set(launcher, '_connection.ui.serial', serial);
+    launcher.on('disconnected', () => ui.stop());
+    
+    return launcher;
   }
 })(Launcher.connect);
 
