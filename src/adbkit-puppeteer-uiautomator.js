@@ -104,7 +104,7 @@ class UIAutomatorServer {
 
   async startServer() {
     const serial = this.serial;
-    this.handler = ChildProcess.spawn(`adb -s ${serial} shell am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`)
+    this.handler = ChildProcess.spawn('adb', ['-s', serial, 'shell', 'am', 'instrument', '-w', 'com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner']);
   }
   async killServer() {
     if(!this.handler) return;
