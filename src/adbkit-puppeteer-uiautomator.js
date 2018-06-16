@@ -5,7 +5,7 @@ import URL from 'url';
 import Path from 'path';
 
 import Request from 'request-promise';
-import ChildProcess from 'child-process';
+import ChildProcess from 'child_process';
 
 
 class UIAutomatorServer {
