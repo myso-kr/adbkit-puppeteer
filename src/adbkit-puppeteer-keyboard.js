@@ -11,7 +11,6 @@ Launcher.connect = ((o) => {
     const client = _.get(options, 'adb.client');
     const serial = _.get(options, 'adb.serial');
     if(!client || !serial) { throw new Error(''); }
-    const page = await o.apply(this, args);
     if(!(await client.isInstalled(serial, KEYBOARD_PACKAGES))) {
       await client.install(serial, Path.join(__dirname, '../res/com.aosp.inputmethod.korean.apk'));
       await client.shellWait(serial, `ime enable ${KEYBOARD_PACKAGES}/${KEYBOARD_ACTIVITY}`);
