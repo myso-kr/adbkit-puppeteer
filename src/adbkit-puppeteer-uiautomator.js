@@ -200,6 +200,5 @@ class UIAutomator {
 
 import Client from 'adbkit/lib/adb/client';
 Client.prototype.uiautomator = async function(serial, options) {
-  const uiautomator = new UIAutomator(this, _.assign({ serial }, options));
-  return uiautomator.connect();
+  return this.__ui = this.__ui || new UIAutomator(this, _.assign({ serial }, options));
 }
