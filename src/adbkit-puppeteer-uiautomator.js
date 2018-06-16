@@ -104,7 +104,6 @@ class UIAutomatorServer {
   }
 
   async startServer() {
-    const client = this.client;
     const serial = this.serial;
     this.handler = await ADB.createClient();
     this.handler.shell(serial, `am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`);
