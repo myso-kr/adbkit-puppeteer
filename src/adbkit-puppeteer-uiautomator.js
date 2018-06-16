@@ -76,10 +76,10 @@ class UIAutomatorServer {
     const client = this.client;
     const serial = this.serial;
     if(!keepApps || !(await client.isInstalled(serial, 'com.github.uiautomator'))) {
-      await client.install(serial, Path.resolve(__dirname, '../src/com.github.uiautomator.apk'));
+      await client.install(serial, Path.resolve(__dirname, '../res/com.github.uiautomator.apk'));
     }
     if(!keepApps || !(await client.isInstalled(serial, 'com.github.uiautomator.test'))) {
-      await client.install(serial, Path.resolve(__dirname, '../src/com.github.uiautomator.test.apk'));
+      await client.install(serial, Path.resolve(__dirname, '../res/com.github.uiautomator.test.apk'));
     }
   }
 
