@@ -103,7 +103,7 @@ class UIAutomatorServer {
   async startAPK() {
     const client = this.client;
     const serial = this.serial;
-    await client.shell(serial, `am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`);
+    await client.shellWait(serial, `am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`);
   }
 }
 
