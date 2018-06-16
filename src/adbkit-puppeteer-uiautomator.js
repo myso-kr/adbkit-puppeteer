@@ -39,12 +39,12 @@ class UIAutomatorServer {
     const client = this.client;
     const serial = this.serial;
     try {
-      const resp = await Request.get(this.url_stop, {});
-      console.log(this.url_stop, resp);
+      await Request.get(this.url_stop, {});
+    } catch(e) {
+      //throw new Error(`uiautomator-server: Failed to stop uiautomator json-prc server on device ${e.message || e}`);
+    } finally {
       await this.killServer();
       await this.uninstallAPK(keepApps);
-    } catch(e) {
-      throw new Error(`uiautomator-server: Failed to stop uiautomator json-prc server on device ${e.message || e}`);
     }
   }
 
