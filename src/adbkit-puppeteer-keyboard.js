@@ -8,8 +8,8 @@ Launcher.connect = ((o) => {
   const KEYBOARD_PACKAGES = 'com.aosp.inputmethod.korean'
   return async function(options) {
     const launcher = await o.apply(this, [options]);
-    const client = _.get(this, '_client._connection.adb.client');
-    const serial = _.get(this, '_client._connection.adb.serial');
+    const client = _.get(options, 'adb.client');
+    const serial = _.get(options, 'adb.serial');
     if(!client || !serial) { throw new Error(''); }
     const page = await o.apply(this, args);
     if(!(await client.isInstalled(serial, KEYBOARD_PACKAGES))) {
