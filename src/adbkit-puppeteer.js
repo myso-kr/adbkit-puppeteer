@@ -9,12 +9,13 @@ import ADB from 'adbkit';
 import './adbkit-shell-wait';
 import './adbkit-screen';
 import './adbkit-puppeteer-evaluate-on-new-document';
+import './adbkit-puppeteer-uiautomator';
 import './adbkit-puppeteer-bridge';
 import './adbkit-puppeteer-keyboard';
 import './adbkit-puppeteer-mouse';
 import './adbkit-puppeteer-element';
 import './adbkit-puppeteer-viewport';
-import './adbkit-puppeteer-uiautomator';
+
 
 import Client from 'adbkit/lib/adb/client';
 Client.prototype.puppeteer = async function(serial, options) {
