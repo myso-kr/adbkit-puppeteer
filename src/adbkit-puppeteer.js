@@ -56,10 +56,7 @@ Client.prototype.puppeteer = async function(serial, options) {
   if(!(await this.isInstalled(serial, CHROME_PACKAGES))) {
     throw new Error('chrome not found!');
   } else {
-    const forwards = await this.listForwards(serial);
-    if(!_.find(forwards, { remote: CHROME_PROTOCOL })) {
-      await this.forward(serial, `tcp:${opts.port}`, CHROME_PROTOCOL);
-    }
+    await this.forward(serial, `tcp:${opts.port}`, CHROME_PROTOCOL);
     const chromeCommandLine = [];
     chromeCommandLine.push('--disable-fre');
     chromeCommandLine.push('--no-default-browser-check');
