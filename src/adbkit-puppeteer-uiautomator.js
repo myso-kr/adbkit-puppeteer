@@ -47,7 +47,7 @@ class UIAutomatorServer {
 
   async send(method, params = []) {
     this.__counter = this.__counter + 1;
-    const props = { jsonrpc: '2.0', method, params, id: this._counter };
+    const props = { jsonrpc: '2.0', method, params, id: this._counter + "" };
     await Promise.delay(this.options.commadsExecutionDelay);
     const resp = await Request.post(this.url_json, { json: props });
     console.log(this.url_json, resp);
