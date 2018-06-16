@@ -4,7 +4,9 @@ import Promise from 'bluebird';
 import URL from 'url';
 import Path from 'path';
 
+import ADB from 'adbkit';
 import Request from 'request-promise';
+
 
 class UIAutomatorServer {
   constructor(client, options) {
@@ -27,7 +29,7 @@ class UIAutomatorServer {
 
   async connect(keepApps) {
     await this.installAPK(keepApps);
-    await this.startAPK();
+    await this.startServer();
     await this.forwardAPK();
     await this.verify();
     return this;
@@ -39,6 +41,7 @@ class UIAutomatorServer {
     try {
       const resp = await Request.get(this.url_stop, {});
       console.log(this.url_stop, resp);
+      await this.killServer();
       await this.uninstallAPK(keepApps);
     } catch(e) {
       throw new Error(`uiautomator-server: Failed to stop uiautomator json-prc server on device ${e.message || e}`);
@@ -100,10 +103,15 @@ class UIAutomatorServer {
     await client.forward(serial, `tcp:${this.options.port}`, `tcp:${this.options.devicePort}`);
   }
 
-  async startAPK() {
+  async startServer() {
     const client = this.client;
     const serial = this.serial;
-    await client.shell(serial, `am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`);
+    this.handler = await ADB.createClient();
+    this.handler.shell(serial, `am instrument -w com.github.uiautomator.test/android.support.test.runner.AndroidJUnitRunner`);
+  }
+  async killServer() {
+    if(!this.handler) return;
+    return this.handler.kill();
   }
 }
 
