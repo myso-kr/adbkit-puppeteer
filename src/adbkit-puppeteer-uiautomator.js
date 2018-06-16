@@ -56,7 +56,7 @@ class UIAutomatorServer {
 
   async test() {
     const resp = await this.send('ping');
-    return _.eq(resp.result, 'pong');
+    return _.eq(resp && resp.result, 'pong');
   }
 
   async verify() {
