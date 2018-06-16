@@ -29,6 +29,8 @@
     "fast-xml-parser": "^3.11.1",
     "lodash": "^4.17.10",
     "puppeteer": "^1.4.0",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
     "uiautomator-server": "^2.0.1"
   }
 }

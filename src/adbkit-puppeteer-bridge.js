@@ -9,11 +9,11 @@ Launcher.connect = ((o) => {
     _.set(client, '_connection.adb.client', _.get(options, 'adb.client'));
     _.set(client, '_connection.adb.serial', _.get(options, 'adb.serial'));
 
-    const ui = new UIAutomator(_.get(options, 'ui'));
-    await ui.connect(false); await Promise.delay(3000);
+    const ui = await client.uiautomator(_.get(options, 'adb.serial'), _.get(options, 'ui'));
+    await ui.start(true);
     _.set(client, '_connection.ui.client', ui);
     _.set(client, '_connection.ui.serial', _.get(options, 'ui.serial'));
-    client.on('disconnected', () => ui.stop(false));
+    client.on('disconnected', () => ui.stop());
     return client;
   }
 })(Launcher.connect);
